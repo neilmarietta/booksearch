@@ -1,0 +1,60 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext {
+    // versionName: "{versionMajor}.{versionMinor}.{versionPatch}.{versionBuild}"
+    // versionCode: versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+    // Example for v1.1.0 release build 0 (=90):
+    // versionName: "1.1.0.90" (or only "1.1.0" for tagging)
+    // versionCode: 1010090 (01 * 1000000 + 01 * 10000 + 00 * 100 + 90)
+    versionMajor = 0
+    versionMinor = 1
+    versionPatch = 1
+    versionBuild = 0
+    // 0-9 : release build, 10-19 : beta build, 20-29 : alpha build, ..., 90-99 : debug build
+    versionCode = versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+    versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
+
+    // SDK & Tools
+    minSdkVersion = 16
+    targetSdkVersion = 23
+    compileSdkVersion = 23
+    buildToolsVersion = '23.0.3'
+
+    // Dependencies
+    supportLibraryVersion = '23.1.1'
+    daggerVersion = '2.1'
+    gsonVersion = '2.6.2'
+    reactivexVersion = '1.1.0'
+    okhttpVersion = '3.2.0'
+    butterKnifeVersion = '7.0.1'
+    retrofitVersion = '2.0.0'
+    picassoVersion = '2.5.2'
+
+    junitVersion = '4.12'
+    junitRunnerRuleVersion = '0.5'
+    mockitoVersion = '1.10.19'
+    espressoVersion = '2.2.2'
+}

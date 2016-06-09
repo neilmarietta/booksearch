@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+    </group>
+
+    <item android:title="Profiles">
+        <menu>
+            <item
+                android:id="@+id/nav_linkedin"
+                android:icon="@drawable/ic_action_linkedin"
+                android:title="LinkedIn" />
+            <item
+                android:id="@+id/nav_github"
+                android:icon="@drawable/ic_action_github_circled"
+                android:title="GitHub" />
+        </menu>
+    </item>
+
+</menu>
