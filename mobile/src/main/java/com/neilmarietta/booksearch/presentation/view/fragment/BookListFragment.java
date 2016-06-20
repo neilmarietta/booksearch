@@ -21,9 +21,9 @@ import com.neilmarietta.booksearch.BookSearchApplication;
 import com.neilmarietta.booksearch.R;
 import com.neilmarietta.booksearch.contract.BookListContract;
 import com.neilmarietta.booksearch.entity.Book;
-import com.neilmarietta.booksearch.internal.rx.RxRecyclerView;
 import com.neilmarietta.booksearch.presentation.presenter.BookListPresenter;
 import com.neilmarietta.booksearch.presentation.view.adapter.BookAdapter;
+import com.neilmarietta.booksearch.presentation.view.listener.EndlessRecyclerViewOnScrollListener;
 import com.neilmarietta.booksearch.presentation.view.manager.ExtraPageGridLayoutManager;
 
 import java.util.List;
@@ -32,9 +32,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.Observable;
-import rx.functions.Action1;
-import rx.subjects.PublishSubject;
 
 public class BookListFragment extends Fragment implements BookListContract.View {
 
@@ -50,10 +47,6 @@ public class BookListFragment extends Fragment implements BookListContract.View 
     private SearchView mSearchView;
     private Snackbar mCurrentSnackBar;
 
-    private PublishSubject<CharSequence> mSearchViewSubject;
-    private PublishSubject<Void> mRetryButtonSubject;
-    private PublishSubject<Book> mBookClickSubject;
-
     public BookListFragment() {
         setRetainInstance(true);
     }
@@ -66,10 +59,6 @@ public class BookListFragment extends Fragment implements BookListContract.View 
         BookSearchApplication.from(getContext()).getApplicationComponent().inject(this);
 
         mBookAdapter = new BookAdapter(getContext());
-
-        mSearchViewSubject = PublishSubject.create();
-        mRetryButtonSubject = PublishSubject.create();
-        mBookClickSubject = PublishSubject.create();
     }
 
     @Override
@@ -95,13 +84,19 @@ public class BookListFragment extends Fragment implements BookListContract.View 
         mBookRecycledView.setLayoutManager(mGridLayoutManager);
         mBookRecycledView.setAdapter(mBookAdapter);
         mBookRecycledView.setHasFixedSize(true);
+        mBookRecycledView.addOnScrollListener(new EndlessRecyclerViewOnScrollListener(mGridLayoutManager) {
+            @Override
+            public void onLoadNextPage() {
+                mListPresenter.onLoadNextBooksPage();
+            }
+        });
     }
 
     private void setupAdapter() {
         mBookAdapter.setOnItemClickListener(new BookAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, Book book) {
-                mBookClickSubject.onNext(book);
+                mListPresenter.onBookClicked(book);
             }
         });
     }
@@ -119,40 +114,11 @@ public class BookListFragment extends Fragment implements BookListContract.View 
     }
 
     /**
-     * Entry point to trigger a new search (from outside).
+     * Entry point to trigger a new search.
      */
     public void onSearchNewBooks(CharSequence query) {
-        mSearchViewSubject.onNext(query);
-    }
-
-    @NonNull
-    @Override
-    public Observable<CharSequence> onSearchNewBooks() {
-        return mSearchViewSubject
-                .doOnNext(new Action1<CharSequence>() {
-                    @Override
-                    public void call(CharSequence charSequence) {
-                        MenuItemCompat.collapseActionView(mSearchItem);
-                    }
-                });
-    }
-
-    @NonNull
-    @Override
-    public Observable<Void> onLoadNextBooksPage() {
-        return RxRecyclerView.loadNextPage(mBookRecycledView, mGridLayoutManager);
-    }
-
-    @NonNull
-    @Override
-    public Observable<Void> onRetryButtonClicked() {
-        return mRetryButtonSubject;
-    }
-
-    @NonNull
-    @Override
-    public Observable<Book> onBookClicked() {
-        return mBookClickSubject;
+        mListPresenter.onSearchNewBooks(query);
+        MenuItemCompat.collapseActionView(mSearchItem);
     }
 
     @Override
@@ -194,7 +160,7 @@ public class BookListFragment extends Fragment implements BookListContract.View 
 
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    mSearchViewSubject.onNext(query);
+                    onSearchNewBooks(query);
                     return true;
                 }
             });
@@ -219,7 +185,7 @@ public class BookListFragment extends Fragment implements BookListContract.View 
                 .setAction(R.string.retry, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mRetryButtonSubject.onNext(null);
+                        mListPresenter.onRetryButtonClicked();
                     }
                 });
         mCurrentSnackBar.show();

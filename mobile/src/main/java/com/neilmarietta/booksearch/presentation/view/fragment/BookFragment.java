@@ -1,7 +1,6 @@
 package com.neilmarietta.booksearch.presentation.view.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.jakewharton.rxbinding.view.RxView;
 import com.neilmarietta.booksearch.BookSearchApplication;
 import com.neilmarietta.booksearch.R;
 import com.neilmarietta.booksearch.contract.BookContract;
@@ -23,7 +21,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.Observable;
 
 public class BookFragment extends Fragment implements BookContract.View {
 
@@ -61,6 +58,7 @@ public class BookFragment extends Fragment implements BookContract.View {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
         ButterKnife.bind(this, view);
+        setupPreviewButton();
         return view;
     }
 
@@ -76,10 +74,13 @@ public class BookFragment extends Fragment implements BookContract.View {
         super.onDestroy();
     }
 
-    @NonNull
-    @Override
-    public Observable<?> onPreviewButtonClicked() {
-        return RxView.clicks(mPreviewButton);
+    private void setupPreviewButton() {
+        mPreviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPresenter.onPreviewButtonClicked();
+            }
+        });
     }
 
     @Override

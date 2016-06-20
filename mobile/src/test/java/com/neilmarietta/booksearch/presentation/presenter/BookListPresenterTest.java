@@ -18,7 +18,6 @@ import java.util.List;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -36,38 +35,15 @@ public class BookListPresenterTest {
     @Mock SearchRecentSuggestions mSearchRecentSuggestions;
     @Mock BookListContract.View mBookListView;
 
-    private PublishSubject<CharSequence> mOnSearchNewBooks;
-    private PublishSubject<Void> mOnLoadNextBooksPage;
-    private PublishSubject<Void> mOnRetryButtonClicked;
-    private PublishSubject<Book> mBookClicked;
-
     @Before
     public void setup() {
         initMocks(this);
-
-        prepareMockViewObservables();
 
         mBookSearchUseCase = new BookSearchUseCase(mBookRepository, mSearchRecentSuggestions);
         mBookSearchUseCase.setSubscribeOn(Schedulers.immediate());
         mBookSearchUseCase.setObserveOn(Schedulers.immediate());
 
         mBookListPresenter = new BookListPresenter(mBookSearchUseCase);
-    }
-
-    // TODO: Avoid mocking View Observables that way
-    // If this method forgot to mock a View Observable, the entire test will fail
-    private void prepareMockViewObservables() {
-        mOnSearchNewBooks = PublishSubject.create();
-        when(mBookListView.onSearchNewBooks()).thenReturn(mOnSearchNewBooks);
-
-        mOnLoadNextBooksPage = PublishSubject.create();
-        when(mBookListView.onLoadNextBooksPage()).thenReturn(mOnLoadNextBooksPage);
-
-        mOnRetryButtonClicked = PublishSubject.create();
-        when(mBookListView.onRetryButtonClicked()).thenReturn(mOnRetryButtonClicked);
-
-        mBookClicked = PublishSubject.create();
-        when(mBookListView.onBookClicked()).thenReturn(mBookClicked);
     }
 
     private BookSearchResult prepareMockResult() {
@@ -115,7 +91,7 @@ public class BookListPresenterTest {
 
         mBookListPresenter.attachView(mBookListView, null);
 
-        mOnSearchNewBooks.onNext("any");
+        mBookListPresenter.onSearchNewBooks("any");
 
         verify(mBookListView, times(2)).clearBooks();
         verify(mBookListView, times(2)).showLoading();
@@ -131,7 +107,7 @@ public class BookListPresenterTest {
 
         mBookListPresenter.attachView(mBookListView, null);
 
-        mOnLoadNextBooksPage.onNext(null);
+        mBookListPresenter.onLoadNextBooksPage();
 
         verify(mBookListView, times(2)).showLoading();
         verify(mBookListView, times(2)).hideLoading();
@@ -152,7 +128,7 @@ public class BookListPresenterTest {
 
         BookSearchResult result = prepareMockResult();
 
-        mOnRetryButtonClicked.onNext(null);
+        mBookListPresenter.onRetryButtonClicked();
 
         verify(mBookListView, times(2)).showLoading();
         verify(mBookListView, times(2)).hideLoading();

@@ -18,10 +18,9 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Subscriber;
-import rx.Subscription;
-import rx.functions.Action1;
 
-public class BookListPresenter extends BasePresenter<BookListContract.View> {
+public class BookListPresenter extends BasePresenter<BookListContract.View>
+        implements BookListContract.OnUserActionListener {
 
     private BookSearchUseCase mBookSearchUseCase;
 
@@ -44,11 +43,12 @@ public class BookListPresenter extends BasePresenter<BookListContract.View> {
         super.attachView(view, savedInstanceState);
         if (savedInstanceState != null)
             onRestoreInstanceState(savedInstanceState);
+        else
+            initialize();
+    }
 
-        addViewSubscription(onSearchNewBooks());
-        addViewSubscription(onLoadNextBooksPage());
-        addViewSubscription(onRetryButtonClicked());
-        addViewSubscription(onBookClicked());
+    private void initialize() {
+        onSearchNewBooks(mCurrentText);
     }
 
     @Override
@@ -78,48 +78,26 @@ public class BookListPresenter extends BasePresenter<BookListContract.View> {
         mCurrentText = text;
     }
 
-    private Subscription onSearchNewBooks() {
-        return getMvpView().onSearchNewBooks()
-                // Initial query
-                .startWith(mCurrentText)
-                .subscribe(new Action1<CharSequence>() {
-                    @Override
-                    public void call(CharSequence text) {
-                        setupNewSearch(text);
-                        getMvpView().clearBooks();
-                        searchBooks();
-                    }
-                });
+    @Override
+    public void onSearchNewBooks(CharSequence query) {
+        setupNewSearch(query);
+        getMvpView().clearBooks();
+        searchBooks();
     }
 
-    private Subscription onLoadNextBooksPage() {
-        return getMvpView().onLoadNextBooksPage()
-                .subscribe(new Action1<Object>() {
-                    @Override
-                    public void call(Object o) {
-                        searchBooks();
-                    }
-                });
+    @Override
+    public void onLoadNextBooksPage() {
+        searchBooks();
     }
 
-    private Subscription onRetryButtonClicked() {
-        return getMvpView().onRetryButtonClicked()
-                .subscribe(new Action1<Object>() {
-                    @Override
-                    public void call(Object o) {
-                        searchBooks();
-                    }
-                });
+    @Override
+    public void onRetryButtonClicked() {
+        searchBooks();
     }
 
-    private Subscription onBookClicked() {
-        return getMvpView().onBookClicked()
-                .subscribe(new Action1<Book>() {
-                    @Override
-                    public void call(Book book) {
-                        viewBook(book);
-                    }
-                });
+    @Override
+    public void onBookClicked(Book book) {
+        viewBook(book);
     }
 
     protected void viewBook(Book book) {

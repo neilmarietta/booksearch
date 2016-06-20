@@ -1,17 +1,16 @@
 package com.neilmarietta.booksearch.contract;
 
-import android.support.annotation.NonNull;
-
 import com.neilmarietta.booksearch.entity.Book;
 import com.neilmarietta.booksearch.presentation.MvpView;
 
-import rx.Observable;
-
 public class BookContract {
 
-    public interface View extends MvpView {
+    public interface OnUserActionListener {
 
-        @NonNull Observable<?> onPreviewButtonClicked();
+        void onPreviewButtonClicked();
+    }
+
+    public interface View extends MvpView {
 
         void renderBook(Book book);
     }

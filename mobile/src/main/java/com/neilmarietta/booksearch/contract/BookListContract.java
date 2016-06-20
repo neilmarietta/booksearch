@@ -1,25 +1,24 @@
 package com.neilmarietta.booksearch.contract;
 
-import android.support.annotation.NonNull;
-
 import com.neilmarietta.booksearch.entity.Book;
 import com.neilmarietta.booksearch.presentation.MvpLoadView;
 
 import java.util.List;
 
-import rx.Observable;
-
 public class BookListContract {
 
+    public interface OnUserActionListener {
+
+        void onSearchNewBooks(CharSequence query);
+
+        void onLoadNextBooksPage();
+
+        void onRetryButtonClicked();
+
+        void onBookClicked(Book book);
+    }
+
     public interface View extends MvpLoadView {
-
-        @NonNull Observable<CharSequence> onSearchNewBooks();
-
-        @NonNull Observable<Void> onLoadNextBooksPage();
-
-        @NonNull Observable<Void> onRetryButtonClicked();
-
-        @NonNull Observable<Book> onBookClicked();
 
         void clearBooks();
 

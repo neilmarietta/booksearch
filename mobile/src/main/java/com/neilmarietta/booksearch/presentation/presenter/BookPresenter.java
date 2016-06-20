@@ -1,7 +1,6 @@
 package com.neilmarietta.booksearch.presentation.presenter;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,10 +12,8 @@ import com.neilmarietta.booksearch.presentation.BasePresenter;
 
 import javax.inject.Inject;
 
-import rx.Subscription;
-import rx.functions.Action1;
-
-public class BookPresenter extends BasePresenter<BookContract.View> {
+public class BookPresenter extends BasePresenter<BookContract.View>
+        implements BookContract.OnUserActionListener {
 
     private static final String KEY_CURRENT_BOOK = "current.book";
 
@@ -39,8 +36,6 @@ public class BookPresenter extends BasePresenter<BookContract.View> {
             onRestoreInstanceState(savedInstanceState);
         else
             initialize();
-
-        addViewSubscription(onPreviewButtonClicked());
     }
 
     @Override
@@ -63,14 +58,9 @@ public class BookPresenter extends BasePresenter<BookContract.View> {
         getMvpView().renderBook(mBook);
     }
 
-    private Subscription onPreviewButtonClicked() {
-        return getMvpView().onPreviewButtonClicked()
-                .subscribe(new Action1<Object>() {
-                    @Override
-                    public void call(Object o) {
-                        viewPreviewLink();
-                    }
-                });
+    @Override
+    public void onPreviewButtonClicked() {
+        viewPreviewLink();
     }
 
     private void viewPreviewLink() {
