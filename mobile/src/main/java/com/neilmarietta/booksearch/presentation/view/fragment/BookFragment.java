@@ -85,11 +85,11 @@ public class BookFragment extends Fragment implements BookContract.View {
 
     @Override
     public void renderBook(final Book book) {
-        final VolumeInfo volumeInfo = book.getVolumeInfo();
+        final VolumeInfo volumeInfo = book.volumeInfo();
         if (volumeInfo == null) return;
 
-        mTitleTextView.setText(volumeInfo.getTitle());
-        mDescriptionTextView.setText(volumeInfo.getDescription());
+        mTitleTextView.setText(volumeInfo.title());
+        mDescriptionTextView.setText(volumeInfo.description());
         BookViewUtil.setVolumeCoverSimpleDraweeView(volumeInfo, mCoverView);
     }
 }

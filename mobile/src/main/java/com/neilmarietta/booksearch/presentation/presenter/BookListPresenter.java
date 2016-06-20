@@ -133,7 +133,7 @@ public class BookListPresenter extends BasePresenter<BookListContract.View>
 
         @Override
         public void onNext(BookSearchResult bookSearchResult) {
-            List<Book> books = bookSearchResult.getItems();
+            List<Book> books = bookSearchResult.items();
             if (books != null) {
                 mCurrentPage++;
                 BookListPresenter.this.getMvpView().addBooks(books);

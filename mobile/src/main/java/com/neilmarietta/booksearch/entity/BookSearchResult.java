@@ -1,41 +1,29 @@
 package com.neilmarietta.booksearch.entity;
 
+import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class BookSearchResult {
+@AutoValue
+public abstract class BookSearchResult {
+
+    public static BookSearchResult create(String kind, int totalItems, List<Book> items) {
+        return new AutoValue_BookSearchResult(kind, totalItems, items);
+    }
+
+    public static TypeAdapter<BookSearchResult> typeAdapter(Gson gson) {
+        return new AutoValue_BookSearchResult.GsonTypeAdapter(gson);
+    }
 
     @SerializedName("kind")
-    private String kind;
+    public abstract String kind();
 
     @SerializedName("totalItems")
-    private int totalItems;
+    public abstract int totalItems();
 
     @SerializedName("items")
-    private List<Book> items;
-
-    public String getKind() {
-        return kind;
-    }
-
-    public void setKind(String kind) {
-        this.kind = kind;
-    }
-
-    public int getTotalItems() {
-        return totalItems;
-    }
-
-    public void setTotalItems(int totalItems) {
-        this.totalItems = totalItems;
-    }
-
-    public List<Book> getItems() {
-        return items;
-    }
-
-    public void setItems(List<Book> items) {
-        this.items = items;
-    }
+    public abstract List<Book> items();
 }

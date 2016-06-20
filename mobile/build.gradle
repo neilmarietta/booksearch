@@ -39,6 +39,11 @@ dependencies {
     compile "com.google.dagger:dagger:$rootProject.daggerVersion"
     apt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
 
+    compile "com.google.auto.value:auto-value:$rootProject.autoValueVersion"
+    apt "com.google.auto.value:auto-value:$rootProject.autoValueVersion"
+    apt "com.ryanharter.auto.value:auto-value-parcel:$rootProject.autoValueParcelVersion"
+    apt "com.ryanharter.auto.value:auto-value-gson:$rootProject.autoValueGsonVersion"
+
     compile "com.google.code.gson:gson:$rootProject.gsonVersion"
     compile "io.reactivex:rxandroid:$rootProject.reactivexVersion"
     compile "io.reactivex:rxjava:$rootProject.reactivexVersion"

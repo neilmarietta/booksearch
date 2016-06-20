@@ -6,6 +6,8 @@ import com.neilmarietta.booksearch.contract.BookListContract;
 import com.neilmarietta.booksearch.data.repository.BookRepository;
 import com.neilmarietta.booksearch.entity.Book;
 import com.neilmarietta.booksearch.entity.BookSearchResult;
+import com.neilmarietta.booksearch.entity.ImageLinks;
+import com.neilmarietta.booksearch.entity.VolumeInfo;
 import com.neilmarietta.booksearch.interactor.BookSearchUseCase;
 
 import org.junit.After;
@@ -47,14 +49,10 @@ public class BookListPresenterTest {
     }
 
     private BookSearchResult prepareMockResult() {
-        BookSearchResult result = new BookSearchResult();
-        result.setKind("books#volumes");
         List<Book> items = new ArrayList<>();
-        items.add(new Book());
-        items.add(new Book());
-        items.add(new Book());
-        result.setItems(items);
-        result.setTotalItems(items.size());
+        VolumeInfo volumeInfo = VolumeInfo.create("title", 1, 4.0f, 1, ImageLinks.create(null, null, null, null, null, null));
+        items.add(Book.create("kind", "1", "etag", "link", volumeInfo));
+        BookSearchResult result = BookSearchResult.create("books#volumes", items.size(), items);
 
         when(mBookRepository.getBookSearchResult(anyString(), anyInt(), anyInt()))
                 .thenReturn(Observable.just(result));
@@ -80,7 +78,7 @@ public class BookListPresenterTest {
 
         verify(mBookListView).showLoading();
         verify(mBookListView).hideLoading();
-        verify(mBookListView).addBooks(result.getItems());
+        verify(mBookListView).addBooks(result.items());
 
         mBookListPresenter.detachView();
     }
@@ -96,7 +94,7 @@ public class BookListPresenterTest {
         verify(mBookListView, times(2)).clearBooks();
         verify(mBookListView, times(2)).showLoading();
         verify(mBookListView, times(2)).hideLoading();
-        verify(mBookListView, times(2)).addBooks(result.getItems());
+        verify(mBookListView, times(2)).addBooks(result.items());
 
         mBookListPresenter.detachView();
     }
@@ -111,7 +109,7 @@ public class BookListPresenterTest {
 
         verify(mBookListView, times(2)).showLoading();
         verify(mBookListView, times(2)).hideLoading();
-        verify(mBookListView, times(2)).addBooks(result.getItems());
+        verify(mBookListView, times(2)).addBooks(result.items());
 
         mBookListPresenter.detachView();
     }
@@ -132,7 +130,7 @@ public class BookListPresenterTest {
 
         verify(mBookListView, times(2)).showLoading();
         verify(mBookListView, times(2)).hideLoading();
-        verify(mBookListView).addBooks(result.getItems());
+        verify(mBookListView).addBooks(result.items());
 
         mBookListPresenter.detachView();
     }
@@ -140,7 +138,7 @@ public class BookListPresenterTest {
     @Test
     public void viewBook() {
         BookSearchResult result = prepareMockResult();
-        Book book =  new Book();
+        Book book =  Book.create("kind", "1", "etag", "link", null);
 
         mBookListPresenter.attachView(mBookListView, null);
         // TODO: Test this call

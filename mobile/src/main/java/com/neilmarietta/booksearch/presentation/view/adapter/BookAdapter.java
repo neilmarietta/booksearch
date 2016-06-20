@@ -84,7 +84,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     public void onBindViewHolder(final BookViewHolder holder, int position) {
         final int adapterPosition = holder.getAdapterPosition();
         final Book book = mBooks.get(adapterPosition);
-        holder.title.setText(book.getVolumeInfo().getTitle());
+        holder.title.setText(book.volumeInfo().title());
         holder.cover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,7 +92,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                     mListener.onItemClick(holder.cover, book);
             }
         });
-        BookViewUtil.setVolumeCoverSimpleDraweeView(book.getVolumeInfo(), holder.cover);
+        BookViewUtil.setVolumeCoverSimpleDraweeView(book.volumeInfo(), holder.cover);
     }
 
     static class BookViewHolder extends RecyclerView.ViewHolder {

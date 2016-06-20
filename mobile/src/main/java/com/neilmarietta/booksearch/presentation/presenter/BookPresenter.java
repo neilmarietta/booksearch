@@ -66,7 +66,7 @@ public class BookPresenter extends BasePresenter<BookContract.View>
     private void viewPreviewLink() {
         // Open book preview in browser
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(mBook.getVolumeInfo().getPreviewLink()));
+        intent.setData(Uri.parse(mBook.volumeInfo().previewLink()));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }

@@ -42,7 +42,7 @@ public class BookActivity extends AppCompatActivity {
 
         // Set Book title on CollapsingToolbar
         Book book = getIntent().getExtras().getParcelable(EXTRA_BOOK);
-        if (book != null && book.getVolumeInfo() != null)
-            mCollapsingToolbarLayout.setTitle(book.getVolumeInfo().getTitle());
+        if (book != null && book.volumeInfo() != null)
+            mCollapsingToolbarLayout.setTitle(book.volumeInfo().title());
     }
 }

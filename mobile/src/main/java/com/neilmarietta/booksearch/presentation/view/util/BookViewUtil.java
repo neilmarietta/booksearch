@@ -13,7 +13,7 @@ import com.neilmarietta.booksearch.entity.VolumeInfo;
 public class BookViewUtil {
 
     public static void setVolumeCoverSimpleDraweeView(VolumeInfo volumeInfo, SimpleDraweeView view) {
-        ImageLinks imageLinks = volumeInfo.getImageLinks();
+        ImageLinks imageLinks = volumeInfo.imageLinks();
 
         if (imageLinks != null) {
             Uri small = Uri.parse(imageLinks.getSmall());
