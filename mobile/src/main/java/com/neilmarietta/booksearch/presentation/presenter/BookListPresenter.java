@@ -70,6 +70,7 @@ public class BookListPresenter extends BasePresenter<BookListContract.View>
         mCurrentText = savedInstanceState.getCharSequence(KEY_CURRENT_TEXT);
         mCurrentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
         mCurrentItemsByPage = savedInstanceState.getInt(KEY_CURRENT_ITEMS_BY_PAGE);
+        getMvpView().clearBooks(); // View may retain state
         getMvpView().addBooks(savedInstanceState.<Book>getParcelableArrayList(KEY_CURRENT_BOOKS));
     }
 
