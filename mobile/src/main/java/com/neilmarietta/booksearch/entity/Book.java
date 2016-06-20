@@ -22,6 +22,9 @@ public class Book implements Parcelable {
     @SerializedName("volumeInfo")
     private VolumeInfo volumeInfo;
 
+    public Book() {
+    }
+
     public String getKind() {
         return kind;
     }

@@ -1,5 +1,6 @@
 package com.neilmarietta.booksearch.presentation.presenter;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,15 +11,24 @@ import com.neilmarietta.booksearch.contract.BookContract;
 import com.neilmarietta.booksearch.entity.Book;
 import com.neilmarietta.booksearch.presentation.BasePresenter;
 
-public class BookPresenter extends BasePresenter<BookContract.View> implements BookContract.OnUserActionListener {
+import javax.inject.Inject;
+
+import rx.Subscription;
+import rx.functions.Action1;
+
+public class BookPresenter extends BasePresenter<BookContract.View> {
 
     private static final String KEY_CURRENT_BOOK = "current.book";
 
-    private Context mContext;
+    private Application mContext;
     private Book mBook;
 
-    public BookPresenter(Context context, Book book) {
+    @Inject
+    public BookPresenter(Application context) {
         mContext = context;
+    }
+
+    public void setBook(Book book) {
         mBook = book;
     }
 
@@ -29,6 +39,8 @@ public class BookPresenter extends BasePresenter<BookContract.View> implements B
             onRestoreInstanceState(savedInstanceState);
         else
             initialize();
+
+        addViewSubscription(onPreviewButtonClicked());
     }
 
     @Override
@@ -51,8 +63,17 @@ public class BookPresenter extends BasePresenter<BookContract.View> implements B
         getMvpView().renderBook(mBook);
     }
 
-    @Override
-    public void onPreviewButtonClicked() {
+    private Subscription onPreviewButtonClicked() {
+        return getMvpView().onPreviewButtonClicked()
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object o) {
+                        viewPreviewLink();
+                    }
+                });
+    }
+
+    private void viewPreviewLink() {
         // Open book preview in browser
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(mBook.getVolumeInfo().getPreviewLink()));

@@ -1,7 +1,8 @@
 package com.neilmarietta.booksearch.presentation.presenter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.neilmarietta.booksearch.contract.BookListContract;
@@ -9,6 +10,7 @@ import com.neilmarietta.booksearch.entity.Book;
 import com.neilmarietta.booksearch.entity.BookSearchResult;
 import com.neilmarietta.booksearch.interactor.BookSearchUseCase;
 import com.neilmarietta.booksearch.presentation.BasePresenter;
+import com.neilmarietta.booksearch.presentation.view.activity.BookActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +18,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Subscriber;
+import rx.Subscription;
+import rx.functions.Action1;
 
-public class BookListPresenter extends BasePresenter<BookListContract.View> implements BookListContract.OnUserActionListener {
+public class BookListPresenter extends BasePresenter<BookListContract.View> {
 
     private BookSearchUseCase mBookSearchUseCase;
 
@@ -26,7 +30,7 @@ public class BookListPresenter extends BasePresenter<BookListContract.View> impl
     private static final String KEY_CURRENT_ITEMS_BY_PAGE = "current.items.by.page";
     private static final String KEY_CURRENT_BOOKS = "current.books";
 
-    private String mCurrentText;
+    private CharSequence mCurrentText = "android";
     private int mCurrentPage = 1;
     private int mCurrentItemsByPage = 20;
 
@@ -40,8 +44,11 @@ public class BookListPresenter extends BasePresenter<BookListContract.View> impl
         super.attachView(view, savedInstanceState);
         if (savedInstanceState != null)
             onRestoreInstanceState(savedInstanceState);
-        else
-            initialize();
+
+        addViewSubscription(onSearchNewBooks());
+        addViewSubscription(onLoadNextBooksPage());
+        addViewSubscription(onRetryButtonClicked());
+        addViewSubscription(onBookClicked());
     }
 
     @Override
@@ -52,7 +59,7 @@ public class BookListPresenter extends BasePresenter<BookListContract.View> impl
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
-        bundle.putString(KEY_CURRENT_TEXT, mCurrentText);
+        bundle.putCharSequence(KEY_CURRENT_TEXT, mCurrentText);
         bundle.putInt(KEY_CURRENT_PAGE, mCurrentPage);
         bundle.putInt(KEY_CURRENT_ITEMS_BY_PAGE, mCurrentItemsByPage);
         bundle.putParcelableArrayList(KEY_CURRENT_BOOKS, (ArrayList<Book>) getMvpView().getBooks());
@@ -60,45 +67,79 @@ public class BookListPresenter extends BasePresenter<BookListContract.View> impl
     }
 
     private void onRestoreInstanceState(Bundle savedInstanceState) {
-        mCurrentText = savedInstanceState.getString(KEY_CURRENT_TEXT);
+        mCurrentText = savedInstanceState.getCharSequence(KEY_CURRENT_TEXT);
         mCurrentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
         mCurrentItemsByPage = savedInstanceState.getInt(KEY_CURRENT_ITEMS_BY_PAGE);
         getMvpView().addBooks(savedInstanceState.<Book>getParcelableArrayList(KEY_CURRENT_BOOKS));
     }
 
-    public void initialize() {
-        onSearchNewBooks("android");
-    }
-
-    @Override
-    public void onSearchNewBooks(String text) {
+    private void setupNewSearch(CharSequence text) {
         mCurrentPage = 1;
         mCurrentText = text;
-        getMvpView().clearBooks();
-        getMvpView().showLoading();
-        searchBooks();
     }
 
-    @Override
-    public void onLoadNextBooksPage() {
-        getMvpView().showLoading();
-        searchBooks();
+    private Subscription onSearchNewBooks() {
+        return getMvpView().onSearchNewBooks()
+                // Initial query
+                .startWith(mCurrentText)
+                .subscribe(new Action1<CharSequence>() {
+                    @Override
+                    public void call(CharSequence text) {
+                        setupNewSearch(text);
+                        getMvpView().clearBooks();
+                        searchBooks();
+                    }
+                });
     }
 
-    @Override
-    public void onRetryButtonClicked() {
-        searchBooks();
+    private Subscription onLoadNextBooksPage() {
+        return getMvpView().onLoadNextBooksPage()
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object o) {
+                        searchBooks();
+                    }
+                });
+    }
+
+    private Subscription onRetryButtonClicked() {
+        return getMvpView().onRetryButtonClicked()
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object o) {
+                        searchBooks();
+                    }
+                });
+    }
+
+    private Subscription onBookClicked() {
+        return getMvpView().onBookClicked()
+                .subscribe(new Action1<Book>() {
+                    @Override
+                    public void call(Book book) {
+                        viewBook(book);
+                    }
+                });
+    }
+
+    protected void viewBook(Book book) {
+        // TODO: Move this in another class (Action Dispatcher?) and Test
+        Context context = getMvpView().getContext();
+        Intent intent = new Intent(context, BookActivity.class);
+        intent.putExtra(BookActivity.EXTRA_BOOK, book);
+        context.startActivity(intent);
     }
 
     private void searchBooks() {
+        getMvpView().showLoading();
         mBookSearchUseCase.searchBooks(
                 mCurrentText,
                 mCurrentItemsByPage,
                 (mCurrentPage - 1) * mCurrentItemsByPage,
-                new FlickrPhotoListSubscriber());
+                new BookSearchSubscriber());
     }
 
-    private final class FlickrPhotoListSubscriber extends Subscriber<BookSearchResult> {
+    private final class BookSearchSubscriber extends Subscriber<BookSearchResult> {
 
         @Override
         public void onCompleted() {

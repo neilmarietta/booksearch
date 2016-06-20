@@ -56,7 +56,7 @@ public class BookListActivity extends AppCompatActivity
             BookListFragment fragment = (BookListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.content_book_list_fragment);
             if (fragment != null)
-                fragment.searchBooks(query);
+                fragment.onSearchNewBooks(query);
 
             // Avoid search onConfigurationChanged
             //setIntent(intent); Do not save if it came from a SEARCH Intent

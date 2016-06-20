@@ -19,11 +19,23 @@ public class BookSearchResult {
         return kind;
     }
 
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
     public int getTotalItems() {
         return totalItems;
     }
 
+    public void setTotalItems(int totalItems) {
+        this.totalItems = totalItems;
+    }
+
     public List<Book> getItems() {
         return items;
+    }
+
+    public void setItems(List<Book> items) {
+        this.items = items;
     }
 }

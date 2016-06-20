@@ -1,15 +1,15 @@
 package com.neilmarietta.booksearch.internal.di.component;
 
-import android.app.Application;
-
+import com.neilmarietta.booksearch.internal.di.PerApplication;
 import com.neilmarietta.booksearch.internal.di.module.ApplicationModule;
-
-import javax.inject.Singleton;
+import com.neilmarietta.booksearch.presentation.view.fragment.BookFragment;
+import com.neilmarietta.booksearch.presentation.view.fragment.BookListFragment;
 
 import dagger.Component;
 
-@Singleton
-@Component(modules = {ApplicationModule.class})
+@PerApplication
+@Component(dependencies = {ApiConnectionComponent.class}, modules = {ApplicationModule.class})
 public interface ApplicationComponent {
-    Application application();
+    void inject(BookListFragment fragment);
+    void inject(BookFragment fragment);
 }

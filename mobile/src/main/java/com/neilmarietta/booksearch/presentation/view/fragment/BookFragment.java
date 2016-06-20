@@ -1,6 +1,7 @@
 package com.neilmarietta.booksearch.presentation.view.fragment;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.jakewharton.rxbinding.view.RxView;
+import com.neilmarietta.booksearch.BookSearchApplication;
 import com.neilmarietta.booksearch.R;
 import com.neilmarietta.booksearch.contract.BookContract;
 import com.neilmarietta.booksearch.entity.Book;
@@ -16,12 +19,15 @@ import com.neilmarietta.booksearch.presentation.presenter.BookPresenter;
 import com.neilmarietta.booksearch.presentation.view.activity.BookActivity;
 import com.neilmarietta.booksearch.presentation.view.util.BookViewUtil;
 
+import javax.inject.Inject;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Observable;
 
 public class BookFragment extends Fragment implements BookContract.View {
 
-    private BookPresenter mPresenter;
+    @Inject BookPresenter mPresenter;
 
     @Bind(R.id.bt_preview) TextView mPreviewButton;
     @Bind(R.id.tv_title) TextView mTitleTextView;
@@ -36,9 +42,10 @@ public class BookFragment extends Fragment implements BookContract.View {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPresenter = new BookPresenter(
-                getActivity().getApplicationContext(),
-                getActivity().getIntent().getExtras().<Book>getParcelable(BookActivity.EXTRA_BOOK));
+        BookSearchApplication.from(getContext()).getApplicationComponent().inject(this);
+
+        // TODO: Find a better way to setBook from
+        mPresenter.setBook(getActivity().getIntent().getExtras().<Book>getParcelable(BookActivity.EXTRA_BOOK));
     }
 
     @Override
@@ -69,6 +76,12 @@ public class BookFragment extends Fragment implements BookContract.View {
         super.onDestroy();
     }
 
+    @NonNull
+    @Override
+    public Observable<?> onPreviewButtonClicked() {
+        return RxView.clicks(mPreviewButton);
+    }
+
     @Override
     public void renderBook(final Book book) {
         final VolumeInfo volumeInfo = book.getVolumeInfo();
@@ -77,11 +90,5 @@ public class BookFragment extends Fragment implements BookContract.View {
         mTitleTextView.setText(volumeInfo.getTitle());
         mDescriptionTextView.setText(volumeInfo.getDescription());
         BookViewUtil.setVolumeCoverSimpleDraweeView(volumeInfo, mCoverView);
-        mPreviewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPresenter.onPreviewButtonClicked();
-            }
-        });
     }
 }
