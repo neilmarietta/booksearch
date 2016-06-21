@@ -13,10 +13,10 @@ import java.util.List;
 @AutoValue
 public abstract class VolumeInfo implements Parcelable {
 
-    public static VolumeInfo create(String title, int pageCount,
-                                    float averageRating, int ratingsCount, ImageLinks imageLinks) {
-        return new AutoValue_VolumeInfo(title, null, null, null, null, pageCount,
-                null, averageRating, ratingsCount, imageLinks, null, null,
+    public static VolumeInfo create(String title, String description, int pageCount,
+                                    float averageRating, int ratingsCount, ImageLinks imageLinks, String previewLink) {
+        return new AutoValue_VolumeInfo(title, null, null, null, description, pageCount,
+                null, averageRating, ratingsCount, imageLinks, null, previewLink,
                 null, null);
     }
 

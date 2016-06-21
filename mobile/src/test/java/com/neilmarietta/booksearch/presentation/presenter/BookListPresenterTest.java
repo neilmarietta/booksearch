@@ -49,9 +49,13 @@ public class BookListPresenterTest {
     }
 
     private BookSearchResult prepareMockResult() {
+        VolumeInfo volumeInfo = VolumeInfo.create(
+                "title", "description", 1, 4.0f, 1,
+                ImageLinks.create(null, null, null, null, null, null), null);
+
         List<Book> items = new ArrayList<>();
-        VolumeInfo volumeInfo = VolumeInfo.create("title", 1, 4.0f, 1, ImageLinks.create(null, null, null, null, null, null));
         items.add(Book.create("kind", "1", "etag", "link", volumeInfo));
+
         BookSearchResult result = BookSearchResult.create("books#volumes", items.size(), items);
 
         when(mBookRepository.getBookSearchResult(anyString(), anyInt(), anyInt()))

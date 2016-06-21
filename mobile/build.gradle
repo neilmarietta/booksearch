@@ -12,7 +12,7 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.neilmarietta.booksearch.BookSearchTestRunner"
     }
     buildTypes {
         release {
@@ -62,6 +62,10 @@ dependencies {
     testCompile "junit:junit:$rootProject.junitVersion"
     testCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
     //testApt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+
+    androidTestApt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+    androidTestCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
+    androidTestCompile "com.google.dexmaker:dexmaker-mockito:$rootProject.dexMakerVersion"
 
     // Android JUnit Runner
     androidTestCompile "com.android.support.test:runner:$rootProject.junitRunnerRuleVersion"
