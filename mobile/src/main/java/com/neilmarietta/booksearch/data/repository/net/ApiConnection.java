@@ -1,5 +1,8 @@
 package com.neilmarietta.booksearch.data.repository.net;
 
+import com.google.gson.GsonBuilder;
+import com.ryanharter.auto.value.gson.AutoValueGsonTypeAdapterFactory;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -18,7 +21,9 @@ public class ApiConnection {
                 .baseUrl(HTTPS_START_URI + BASE_API_URL)
                 .client(client)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
+                                .registerTypeAdapterFactory(new AutoValueGsonTypeAdapterFactory())
+                                .create()))
                 .build();
     }
 

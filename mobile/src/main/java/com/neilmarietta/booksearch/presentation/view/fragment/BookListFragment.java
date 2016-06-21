@@ -2,9 +2,7 @@ package com.neilmarietta.booksearch.presentation.view.fragment;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -22,11 +20,8 @@ import android.widget.RelativeLayout;
 import com.neilmarietta.booksearch.BookSearchApplication;
 import com.neilmarietta.booksearch.R;
 import com.neilmarietta.booksearch.contract.BookListContract;
-import com.neilmarietta.booksearch.data.provider.BookSearchRecentSuggestionsProvider;
 import com.neilmarietta.booksearch.entity.Book;
-import com.neilmarietta.booksearch.internal.di.component.DaggerBookSearchComponent;
 import com.neilmarietta.booksearch.presentation.presenter.BookListPresenter;
-import com.neilmarietta.booksearch.presentation.view.activity.BookActivity;
 import com.neilmarietta.booksearch.presentation.view.adapter.BookAdapter;
 import com.neilmarietta.booksearch.presentation.view.listener.EndlessRecyclerViewOnScrollListener;
 import com.neilmarietta.booksearch.presentation.view.manager.ExtraPageGridLayoutManager;
@@ -46,11 +41,10 @@ public class BookListFragment extends Fragment implements BookListContract.View 
     @Bind(R.id.rl_progress) RelativeLayout mProgressRelativeLayout;
 
     private BookAdapter mBookAdapter;
+    private ExtraPageGridLayoutManager mGridLayoutManager;
 
     private MenuItem mSearchItem;
     private SearchView mSearchView;
-    private SearchRecentSuggestions mSearchRecentSuggestions;
-
     private Snackbar mCurrentSnackBar;
 
     public BookListFragment() {
@@ -62,13 +56,9 @@ public class BookListFragment extends Fragment implements BookListContract.View 
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        mBookAdapter = new BookAdapter(getContext());
-        mSearchRecentSuggestions = new SearchRecentSuggestions(getContext(),
-                BookSearchRecentSuggestionsProvider.AUTHORITY, BookSearchRecentSuggestionsProvider.MODE);
+        BookSearchApplication.from(getContext()).getApplicationComponent().inject(this);
 
-        DaggerBookSearchComponent.builder()
-                .apiConnectionComponent(BookSearchApplication.from(getContext()).getApiConnectionComponent())
-                .build().inject(this);
+        mBookAdapter = new BookAdapter(getContext());
     }
 
     @Override
@@ -90,11 +80,11 @@ public class BookListFragment extends Fragment implements BookListContract.View 
     }
 
     private void setupRecyclerView() {
-        final ExtraPageGridLayoutManager gridLayoutManager = new ExtraPageGridLayoutManager(getContext(), 2);
-        mBookRecycledView.setLayoutManager(gridLayoutManager);
+        mGridLayoutManager = new ExtraPageGridLayoutManager(getContext(), 2);
+        mBookRecycledView.setLayoutManager(mGridLayoutManager);
         mBookRecycledView.setAdapter(mBookAdapter);
         mBookRecycledView.setHasFixedSize(true);
-        mBookRecycledView.addOnScrollListener(new EndlessRecyclerViewOnScrollListener(gridLayoutManager) {
+        mBookRecycledView.addOnScrollListener(new EndlessRecyclerViewOnScrollListener(mGridLayoutManager) {
             @Override
             public void onLoadNextPage() {
                 mListPresenter.onLoadNextBooksPage();
@@ -106,9 +96,7 @@ public class BookListFragment extends Fragment implements BookListContract.View 
         mBookAdapter.setOnItemClickListener(new BookAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, Book book) {
-                Intent intent = new Intent(BookListFragment.this.getContext(), BookActivity.class);
-                intent.putExtra(BookActivity.EXTRA_BOOK, book);
-                startActivity(intent);
+                mListPresenter.onBookClicked(book);
             }
         });
     }
@@ -123,14 +111,14 @@ public class BookListFragment extends Fragment implements BookListContract.View 
     public void onDestroy() {
         mListPresenter.detachView();
         super.onDestroy();
-
     }
 
-    @Override
-    public void searchBooks(String text) {
-        mListPresenter.onSearchNewBooks(text);
+    /**
+     * Entry point to trigger a new search.
+     */
+    public void onSearchNewBooks(CharSequence query) {
+        mListPresenter.onSearchNewBooks(query);
         MenuItemCompat.collapseActionView(mSearchItem);
-        mSearchRecentSuggestions.saveRecentQuery(text, null);
     }
 
     @Override
@@ -172,7 +160,7 @@ public class BookListFragment extends Fragment implements BookListContract.View 
 
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    searchBooks(query);
+                    onSearchNewBooks(query);
                     return true;
                 }
             });

@@ -7,23 +7,23 @@ import java.util.List;
 
 public class BookListContract {
 
-    public interface View extends MvpLoadView {
-
-        void clearBooks();
-
-        void searchBooks(String text);
-
-        void addBooks(List<Book> books);
-
-        List<Book> getBooks();
-    }
-
     public interface OnUserActionListener {
 
-        void onSearchNewBooks(String text);
+        void onSearchNewBooks(CharSequence query);
 
         void onLoadNextBooksPage();
 
         void onRetryButtonClicked();
+
+        void onBookClicked(Book book);
+    }
+
+    public interface View extends MvpLoadView {
+
+        void clearBooks();
+
+        void addBooks(List<Book> books);
+
+        List<Book> getBooks();
     }
 }

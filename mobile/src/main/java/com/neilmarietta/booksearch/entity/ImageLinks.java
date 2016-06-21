@@ -1,72 +1,53 @@
 package com.neilmarietta.booksearch.entity;
 
-import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
+import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 
-public class ImageLinks implements Parcelable {
+@AutoValue
+public abstract class ImageLinks implements Parcelable {
+
+    public static ImageLinks create(String smallThumbnail, String thumbnail, String small,
+                                    String medium, String large, String extraLarge) {
+        return new AutoValue_ImageLinks(smallThumbnail, thumbnail, small, medium, large, extraLarge);
+    }
+
+    public static TypeAdapter<ImageLinks> typeAdapter(Gson gson) {
+        return new AutoValue_ImageLinks.GsonTypeAdapter(gson);
+    }
 
     @SerializedName("smallThumbnail")
-    private String smallThumbnail;
+    @Nullable public abstract String smallThumbnail();
 
     @SerializedName("thumbnail")
-    private String thumbnail;
+    @Nullable public abstract String thumbnail();
 
     @SerializedName("small")
-    private String small;
+    @Nullable public abstract String small();
 
     @SerializedName("medium")
-    private String medium;
+    @Nullable public abstract String medium();
 
     @SerializedName("large")
-    private String large;
+    @Nullable public abstract String large();
 
     @SerializedName("extraLarge")
-    private String extraLarge;
+    @Nullable public abstract String extraLarge();
 
     public String getSmall() {
-        return smallThumbnail != null ? smallThumbnail : thumbnail;
+        return smallThumbnail() != null ? smallThumbnail() : thumbnail();
     }
 
     public String getHigh() {
-        return extraLarge != null ? extraLarge :
-                large != null ? large :
-                        medium != null ? medium :
-                                small != null ? small :
-                                        thumbnail != null ? thumbnail :
-                                                smallThumbnail;
-    }
-
-    public int describeContents() {
-        return 0;
-    }
-
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeString(smallThumbnail);
-        out.writeString(thumbnail);
-        out.writeString(small);
-        out.writeString(medium);
-        out.writeString(large);
-        out.writeString(extraLarge);
-    }
-
-    public static final Parcelable.Creator<ImageLinks> CREATOR = new Parcelable.Creator<ImageLinks>() {
-        public ImageLinks createFromParcel(Parcel in) {
-            return new ImageLinks(in);
-        }
-
-        public ImageLinks[] newArray(int size) {
-            return new ImageLinks[size];
-        }
-    };
-
-    private ImageLinks(Parcel in) {
-        smallThumbnail = in.readString();
-        thumbnail = in.readString();
-        small = in.readString();
-        medium = in.readString();
-        large = in.readString();
-        extraLarge = in.readString();
+        return extraLarge() != null ? extraLarge() :
+                large() != null ? large() :
+                        medium() != null ? medium() :
+                                small() != null ? small() :
+                                        thumbnail() != null ? thumbnail() :
+                                                smallThumbnail();
     }
 }

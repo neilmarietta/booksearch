@@ -5,13 +5,13 @@ import com.neilmarietta.booksearch.presentation.MvpView;
 
 public class BookContract {
 
-    public interface View extends MvpView {
-
-        void renderBook(Book book);
-    }
-
     public interface OnUserActionListener {
 
         void onPreviewButtonClicked();
+    }
+
+    public interface View extends MvpView {
+
+        void renderBook(Book book);
     }
 }

@@ -1,8 +1,13 @@
 package com.neilmarietta.booksearch.internal.di.module;
 
+import android.app.Application;
+import android.provider.SearchRecentSuggestions;
+
+import com.neilmarietta.booksearch.data.provider.BookSearchRecentSuggestionsProvider;
 import com.neilmarietta.booksearch.data.repository.BookRepository;
 import com.neilmarietta.booksearch.interactor.BookSearchUseCase;
-import com.neilmarietta.booksearch.internal.di.PerActivity;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -11,8 +16,15 @@ import dagger.Provides;
 public class BookSearchModule {
 
     @Provides
-    @PerActivity
-    BookSearchUseCase provideBookSearchUseCase(BookRepository bookRepository) {
-        return new BookSearchUseCase(bookRepository);
+    @Singleton
+    SearchRecentSuggestions provideSearchRecentSuggestions(Application application) {
+        return new SearchRecentSuggestions(application,
+                BookSearchRecentSuggestionsProvider.AUTHORITY, BookSearchRecentSuggestionsProvider.MODE);
+    }
+
+    @Provides
+    @Singleton
+    public BookSearchUseCase provideBookSearchUseCase(BookRepository bookRepository, SearchRecentSuggestions searchRecentSuggestions) {
+        return new BookSearchUseCase(bookRepository, searchRecentSuggestions);
     }
 }

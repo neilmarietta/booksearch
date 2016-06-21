@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.neilmarietta.booksearch.BookSearchApplication;
 import com.neilmarietta.booksearch.R;
 import com.neilmarietta.booksearch.contract.BookContract;
 import com.neilmarietta.booksearch.entity.Book;
@@ -16,12 +17,14 @@ import com.neilmarietta.booksearch.presentation.presenter.BookPresenter;
 import com.neilmarietta.booksearch.presentation.view.activity.BookActivity;
 import com.neilmarietta.booksearch.presentation.view.util.BookViewUtil;
 
+import javax.inject.Inject;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class BookFragment extends Fragment implements BookContract.View {
 
-    private BookPresenter mPresenter;
+    @Inject BookPresenter mPresenter;
 
     @Bind(R.id.bt_preview) TextView mPreviewButton;
     @Bind(R.id.tv_title) TextView mTitleTextView;
@@ -36,9 +39,10 @@ public class BookFragment extends Fragment implements BookContract.View {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPresenter = new BookPresenter(
-                getActivity().getApplicationContext(),
-                getActivity().getIntent().getExtras().<Book>getParcelable(BookActivity.EXTRA_BOOK));
+        BookSearchApplication.from(getContext()).getApplicationComponent().inject(this);
+
+        // TODO: Find a better way to setBook from
+        mPresenter.setBook(getActivity().getIntent().getExtras().<Book>getParcelable(BookActivity.EXTRA_BOOK));
     }
 
     @Override
@@ -54,6 +58,7 @@ public class BookFragment extends Fragment implements BookContract.View {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
         ButterKnife.bind(this, view);
+        setupPreviewButton();
         return view;
     }
 
@@ -69,19 +74,22 @@ public class BookFragment extends Fragment implements BookContract.View {
         super.onDestroy();
     }
 
-    @Override
-    public void renderBook(final Book book) {
-        final VolumeInfo volumeInfo = book.getVolumeInfo();
-        if (volumeInfo == null) return;
-
-        mTitleTextView.setText(volumeInfo.getTitle());
-        mDescriptionTextView.setText(volumeInfo.getDescription());
-        BookViewUtil.setVolumeCoverSimpleDraweeView(volumeInfo, mCoverView);
+    private void setupPreviewButton() {
         mPreviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPresenter.onPreviewButtonClicked();
             }
         });
+    }
+
+    @Override
+    public void renderBook(final Book book) {
+        final VolumeInfo volumeInfo = book.volumeInfo();
+        if (volumeInfo == null) return;
+
+        mTitleTextView.setText(volumeInfo.title());
+        mDescriptionTextView.setText(volumeInfo.description());
+        BookViewUtil.setVolumeCoverSimpleDraweeView(volumeInfo, mCoverView);
     }
 }
