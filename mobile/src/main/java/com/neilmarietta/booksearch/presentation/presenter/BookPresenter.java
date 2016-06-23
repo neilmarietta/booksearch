@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import com.neilmarietta.booksearch.contract.BookContract;
 import com.neilmarietta.booksearch.entity.Book;
@@ -30,18 +29,8 @@ public class BookPresenter extends BasePresenter<BookContract.View>
     }
 
     @Override
-    public void attachView(@NonNull BookContract.View view, Bundle savedInstanceState) {
-        super.attachView(view, savedInstanceState);
-        if (savedInstanceState != null)
-            onRestoreInstanceState(savedInstanceState);
-        else
-            initialize();
-    }
-
-    @Override
-    public void detachView() {
-        super.detachView();
-        // nothing for now
+    public void initialize() {
+        getMvpView().renderBook(mBook);
     }
 
     @Override
@@ -50,12 +39,9 @@ public class BookPresenter extends BasePresenter<BookContract.View>
         super.onSaveInstanceState(bundle);
     }
 
-    private void onRestoreInstanceState(Bundle savedInstanceState) {
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
         getMvpView().renderBook(mBook = savedInstanceState.getParcelable(KEY_CURRENT_BOOK));
-    }
-
-    public void initialize() {
-        getMvpView().renderBook(mBook);
     }
 
     @Override

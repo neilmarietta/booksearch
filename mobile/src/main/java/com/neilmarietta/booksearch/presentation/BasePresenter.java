@@ -2,32 +2,62 @@ package com.neilmarietta.booksearch.presentation;
 
 import android.os.Bundle;
 
+import com.neilmarietta.booksearch.interactor.UseCase;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
-public class BasePresenter<T extends MvpView> implements MvpPresenter<T> {
+public abstract class BasePresenter<T extends MvpView> implements MvpPresenter<T> {
 
     private T mMvpView;
-    private CompositeSubscription mViewSubscriptions;
+    private CompositeSubscription mSubscriptions;
+    private Set<UseCase> mUseCases = new HashSet<>();
 
     @Override
     public void attachView(T mvpView, Bundle savedInstanceState) {
         mMvpView = mvpView;
-        mViewSubscriptions = new CompositeSubscription();
+        mSubscriptions = new CompositeSubscription();
+
+        if (savedInstanceState != null)
+            onRestoreInstanceState(savedInstanceState);
+        else
+            initialize();
+    }
+
+    public void initialize() {
+    }
+
+    public void onSaveInstanceState(Bundle bundle) {
+    }
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
     }
 
     @Override
     public void detachView() {
         mMvpView = null;
-        mViewSubscriptions.clear();
+        mSubscriptions.clear();
+        for (UseCase usecase : mUseCases)
+            usecase.unsubscribe();
     }
 
-    public void addViewSubscription(Subscription subscription) {
-        mViewSubscriptions.add(subscription);
+    public void add(Subscription subscription) {
+        mSubscriptions.add(subscription);
     }
 
-    public void removeViewSubscription(Subscription subscription) {
-        mViewSubscriptions.remove(subscription);
+    public void remove(Subscription subscription) {
+        mSubscriptions.remove(subscription);
+    }
+
+    public void add(UseCase useCase) {
+        mUseCases.add(useCase);
+    }
+
+    public void remove(UseCase useCase) {
+        mUseCases.remove(useCase);
     }
 
     public boolean isViewAttached() {
@@ -36,9 +66,5 @@ public class BasePresenter<T extends MvpView> implements MvpPresenter<T> {
 
     public T getMvpView() {
         return mMvpView;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle bundle) {
     }
 }

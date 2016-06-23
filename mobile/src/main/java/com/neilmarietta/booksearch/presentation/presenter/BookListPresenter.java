@@ -35,26 +35,12 @@ public class BookListPresenter extends BasePresenter<BookListContract.View>
 
     @Inject
     public BookListPresenter(BookSearchUseCase bookSearchUseCase) {
-        mBookSearchUseCase = bookSearchUseCase;
+        add(mBookSearchUseCase = bookSearchUseCase);
     }
 
     @Override
-    public void attachView(@NonNull BookListContract.View view, Bundle savedInstanceState) {
-        super.attachView(view, savedInstanceState);
-        if (savedInstanceState != null)
-            onRestoreInstanceState(savedInstanceState);
-        else
-            initialize();
-    }
-
-    private void initialize() {
+    public void initialize() {
         onSearchNewBooks(mCurrentText);
-    }
-
-    @Override
-    public void detachView() {
-        super.detachView();
-        mBookSearchUseCase.unsubscribe();
     }
 
     @Override
@@ -66,7 +52,8 @@ public class BookListPresenter extends BasePresenter<BookListContract.View>
         super.onSaveInstanceState(bundle);
     }
 
-    private void onRestoreInstanceState(Bundle savedInstanceState) {
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
         mCurrentText = savedInstanceState.getCharSequence(KEY_CURRENT_TEXT);
         mCurrentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
         mCurrentItemsByPage = savedInstanceState.getInt(KEY_CURRENT_ITEMS_BY_PAGE);
